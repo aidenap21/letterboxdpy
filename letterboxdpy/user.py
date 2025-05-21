@@ -147,8 +147,8 @@ class User:
         return self.pages.watchlist.get_count()
     def get_watchlist_movies(self) -> dict:
         return self.pages.watchlist.get_movies()
-    def get_watchlist(self, filters:dict=None) -> dict:
-        return self.pages.watchlist.get_watchlist(filters)
+    def get_watchlist(self, filters:dict=None, sort:str=None) -> dict:
+        return self.pages.watchlist.get_watchlist(filters, sort)
 
 if __name__ == "__main__":
     import argparse

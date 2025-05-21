@@ -15,7 +15,7 @@ class UserWatchlist:
     def get_owner(self): ...
     def get_count(self) -> int: return extract_count(self.username)
     def get_movies(self) -> dict: return extract_movies(self.url, self.FILMS_PER_PAGE)
-    def get_watchlist(self, filters: dict=None) -> dict: return extract_watchlist(self.username, filters)
+    def get_watchlist(self, filters: dict=None, sort: str=None) -> dict: return extract_watchlist(self.username, filters, sort)
 
 def extract_count(username: str) -> int:
     """Extracts the number of films from the watchlist page's DOM."""
@@ -34,7 +34,7 @@ def extract_count(username: str) -> int:
 
     raise ValueError("Watchlist count could not be extracted from DOM")
 
-def extract_watchlist(username: str, filters: dict = None) -> dict:
+def extract_watchlist(username: str, filters: dict = None, sort: str = None) -> dict:
     """
     Extracts a user's watchlist from the platform.
 
@@ -50,11 +50,22 @@ def extract_watchlist(username: str, filters: dict = None) -> dict:
         - {genre: ['mystery', '-comedy'], year: '2019'}
         - /decade/1990s/genre/action+-drama/
           ^^---> {'decade':'1990s','genre':['action','-drama']}
+
+    sort examples:
+        # popular
+        - /by/popular/
+
+        # average rating
+        - /by/rating/
+
+        # release data
+        = /by/release/
     """
     data = {
         'available': False,
         'count': 0,
         'last_page': None,
+        'sort': sort,
         'filters': filters,
         'data': {}
     }
@@ -70,6 +81,12 @@ def extract_watchlist(username: str, filters: dict = None) -> dict:
                 values = [values]
             f += f"{key}/"
             f += "+".join([str(v) for v in values]) + "/"
+        BASE_URL += f
+
+    # Construct the URL with sort method if provided
+    if sort and isinstance(sort, str):
+        f = "by/"
+        f += f"/{sort}/"
         BASE_URL += f
 
     page = 1
